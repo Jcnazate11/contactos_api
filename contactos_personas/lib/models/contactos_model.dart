@@ -3,16 +3,12 @@ class Contacto {
   final String nombre;
   final String apellido;
   final String telefono;
-  final String createdAt;
-  final String updatedAt;
 
   Contacto({
-    required this.id,
+    this.id = "",
     required this.nombre,
     required this.apellido,
-    required this.telefono,
-    required this.createdAt,
-    required this.updatedAt
+    required this.telefono
   });
 
   // Constructor para crear un objeto Contacto desde JSON
@@ -21,9 +17,7 @@ class Contacto {
       id: json['_id'], // La API devuelve _id como identificador
       nombre: json['nombre'],
       apellido: json['apellido'],
-      telefono: json['telefono'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      telefono: json['telefono']
     );
   }
 
@@ -32,9 +26,7 @@ class Contacto {
     return {
       'nombre': nombre,
       'apellido': apellido,
-      'telefono': telefono,
-      'createdAt': createdAt,
-      'updatedAt': updatedAt
+      'telefono': telefono
     };
   }
 }
