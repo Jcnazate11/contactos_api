@@ -28,9 +28,30 @@ class _ContactosViewState extends State<ContactosView> {
     }
   }
 
-  void _eliminarContacto(String id) async {
-    await _controller.eliminarContacto(id);
-    _cargarContactos();
+  void _mostrarFormularioFlotante(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Para permitir desplazar la pantalla si es necesario
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: _FormularioAgregarContacto(
+            onContactoGuardado: () {
+              Navigator.pop(context);
+              _cargarContactos();
+            },
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -47,67 +68,36 @@ class _ContactosViewState extends State<ContactosView> {
         centerTitle: true,
         foregroundColor: Colors.blue[800],
       ),
-      body: Center(
-        child: Container(
-          margin: EdgeInsets.all(16),
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
+      body: ListView.builder(
+        itemCount: _contactos.length,
+        itemBuilder: (context, index) {
+          final contacto = _contactos[index];
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blue[700],
+              child: Text(
+                contacto.nombre[0].toUpperCase(),
+                style: TextStyle(color: Colors.white),
               ),
-            ],
-          ),
-          child: ListView.builder(
-            itemCount: _contactos.length,
-            itemBuilder: (context, index) {
-              final contacto = _contactos[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blue[700],
-                  child: Text(
-                    contacto.nombre[0].toUpperCase(),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                title: Text(
-                  '${contacto.nombre} ${contacto.apellido}',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                subtitle: Text(
-                  contacto.telefono,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue[800]),
-                      onPressed: () {
-                        // Implementa la función para editar aquí
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red[600]),
-                      onPressed: () => _eliminarContacto(contacto.id),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
+            ),
+            title: Text(
+              '${contacto.nombre} ${contacto.apellido}',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(contacto.telefono),
+            trailing: IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                _controller.eliminarContacto(contacto.id);
+                _cargarContactos();
+              },
+            ),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue[700],
-        onPressed: () {
-          // Implementa la función para agregar aquí
-        },
+        onPressed: () => _mostrarFormularioFlotante(context),
+        backgroundColor: Colors.blue,
         child: Icon(Icons.add, color: Colors.white),
       ),
     );
