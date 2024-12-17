@@ -2,16 +2,42 @@ import 'package:flutter/material.dart';
 import '../controllers/contactos_controller.dart';
 import '../models/contactos_model.dart';
 
-class FormularioAgregarContacto extends StatelessWidget {
-  final VoidCallback onContactoGuardado;
+class FormularioEditarContacto extends StatefulWidget {
+  final Contacto contacto;
+  final VoidCallback onContactoActualizado;
 
-  FormularioAgregarContacto({required this.onContactoGuardado});
+  FormularioEditarContacto({
+    required this.contacto,
+    required this.onContactoActualizado,
+  });
 
+  @override
+  FormularioEditarContactoState createState() =>
+      FormularioEditarContactoState();
+}
+
+class FormularioEditarContactoState extends State<FormularioEditarContacto> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreController = TextEditingController();
-  final _apellidoController = TextEditingController();
-  final _telefonoController = TextEditingController();
+  late TextEditingController _nombreController;
+  late TextEditingController _apellidoController;
+  late TextEditingController _telefonoController;
   final ContactosController _controller = ContactosController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nombreController = TextEditingController(text: widget.contacto.nombre);
+    _apellidoController = TextEditingController(text: widget.contacto.apellido);
+    _telefonoController = TextEditingController(text: widget.contacto.telefono);
+  }
+
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _telefonoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +48,7 @@ class FormularioAgregarContacto extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Agregar Contacto',
+              'Editar Contacto',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -46,17 +72,18 @@ class FormularioAgregarContacto extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  final persona = Contacto(
-                    id: '',
+                  final personaActualizada = Contacto(
+                    id: widget.contacto.id,
                     nombre: _nombreController.text,
                     apellido: _apellidoController.text,
                     telefono: _telefonoController.text,
                   );
-                  await _controller.crearContacto(persona);
-                  onContactoGuardado();
+                  await _controller.actualizarContacto(
+                      widget.contacto.id, personaActualizada);
+                  widget.onContactoActualizado();
                 }
               },
-              child: Text("Guardar"),
+              child: Text("Actualizar"),
             ),
           ],
         ),
